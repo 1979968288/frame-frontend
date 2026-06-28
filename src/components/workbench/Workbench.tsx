@@ -25,6 +25,7 @@ export type ModuleKey = "original" | "rewrite" | "adapt" | "evaluate";
 
 interface Props {
   onExit: () => void;
+  onNavigateTo: (m: ModuleKey) => void;
   initialModule: ModuleKey;
   projectId?: string;
   initialSnapshot?: ProjectSnapshot | null;
@@ -37,7 +38,7 @@ const MODULE_STEPS: Record<ModuleKey, string[]> = {
   evaluate: ["剧本上传", "维度选择", "AI 分析", "报告导出"],
 };
 
-export default function Workbench({ onExit, initialModule, projectId, initialSnapshot }: Props) {
+export default function Workbench({ onExit, onNavigateTo, initialModule, projectId, initialSnapshot }: Props) {
   const snap = initialSnapshot ?? null;
   const [projectName] = useState(snap?.name ?? "");
   const [module, setModule] = useState<ModuleKey>(snap?.module ?? initialModule);
@@ -95,6 +96,7 @@ export default function Workbench({ onExit, initialModule, projectId, initialSna
     >
       <Sidebar
         active={module}
+        onSelect={onNavigateTo}
         onExit={handleExit}
         apiKey={apiKey}
         onSetApiKey={handleSetApiKey}

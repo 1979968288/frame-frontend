@@ -3,7 +3,7 @@ import type { ModuleKey } from "./Workbench";
 
 interface Props {
   active: ModuleKey;
-  onSelect?: (m: ModuleKey) => void;
+  onSelect: (m: ModuleKey) => void;
   onExit: () => void;
   apiKey?: string;
   onSetApiKey?: (key: string) => void;
@@ -139,32 +139,14 @@ export default function Sidebar({ active, onSelect, onExit, apiKey, onSetApiKey 
         >
           {NAV_ITEMS.map((item) => {
             const isActive = item.key === active;
-            const interactive = !!onSelect;
-            const Tag = interactive ? "button" : "div";
             return (
-              <Tag
+              <button
                 key={item.key}
-                {...(interactive
-                  ? {
-                      type: "button" as const,
-                      onClick: () => onSelect!(item.key),
-                      title: item.label,
-                      onMouseEnter: (e: React.MouseEvent) => {
-                        if (!isActive) {
-                          (e.currentTarget as HTMLElement).style.background = "var(--color-accent-whisper)";
-                          (e.currentTarget as HTMLElement).style.color = "var(--color-accent-deep)";
-                        }
-                      },
-                      onMouseLeave: (e: React.MouseEvent) => {
-                        if (!isActive) {
-                          (e.currentTarget as HTMLElement).style.background = "transparent";
-                          (e.currentTarget as HTMLElement).style.color = "var(--color-charcoal)";
-                        }
-                      },
-                    }
-                  : {})}
-                aria-label={interactive ? item.label : undefined}
-                className="flex items-center border-none transition-colors duration-150 w-full"
+                type="button"
+                onClick={() => onSelect(item.key)}
+                aria-label={item.label}
+                title={item.label}
+                className="flex items-center cursor-pointer border-none transition-colors duration-150 w-full"
                 style={{
                   height: "44px",
                   padding: expanded ? "0 12px" : "0",
@@ -178,15 +160,25 @@ export default function Sidebar({ active, onSelect, onExit, apiKey, onSetApiKey 
                   fontSize: "14px",
                   fontWeight: isActive ? 600 : 500,
                   whiteSpace: "nowrap",
-                  cursor: interactive ? "pointer" : "default",
-                  opacity: isActive ? 1 : interactive ? 1 : 0.5,
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = "var(--color-accent-whisper)";
+                    e.currentTarget.style.color = "var(--color-accent-deep)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "var(--color-charcoal)";
+                  }
                 }}
               >
                 <span className="shrink-0 flex items-center justify-center" style={{ width: "20px", height: "20px" }}>
                   {item.icon}
                 </span>
                 {expanded && <span>{item.label}</span>}
-              </Tag>
+              </button>
             );
           })}
         </nav>

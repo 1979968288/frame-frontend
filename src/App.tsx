@@ -34,8 +34,14 @@ export default function App() {
     setView("workbench");
   };
 
-  // From workbench → project-repo
+  // From workbench → project-repo (current module)
   const handleBackToRepo = () => {
+    setView("project-repo");
+  };
+
+  // From workbench → project-repo (different module via sidebar)
+  const handleNavigateToRepo = (module: ModuleKey) => {
+    setPendingModule(module);
     setView("project-repo");
   };
 
@@ -65,6 +71,7 @@ export default function App() {
     return (
       <Workbench
         onExit={handleBackToRepo}
+        onNavigateTo={handleNavigateToRepo}
         initialModule={pendingModule}
         projectId={editingProject?.id}
         initialSnapshot={editingProject}
