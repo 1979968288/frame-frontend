@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Background -->
+  <rect width="64" height="64" rx="14" fill="#1c1c1c"/>
+
+  <!-- F — vertical stroke (white) -->
+  <rect x="11" y="8" width="10" height="48" rx="5" fill="#faf5f0"/>
+
+  <!-- F — top bar (amber) -->
+  <rect x="11" y="8" width="38" height="10" rx="5" fill="#c8882e"/>
+
+  <!-- F — mid bar (amber), transitions into r stem -->
+  <rect x="11" y="31" width="25" height="10" rx="5" fill="#c8882e"/>
+
+  <!-- r — vertical stem (white) -->
+  <rect x="36" y="31" width="10" height="25" rx="5" fill="#faf5f0"/>
+
+  <!-- r — shoulder curve (amber) -->
+  <path
+    d="M 41 31 L 41 22 C 41 12, 52 12, 55 18"
+    stroke="#c8882e"
+    stroke-width="10"
+    stroke-linecap="round"
+    fill="none"
+  />
+</svg>
