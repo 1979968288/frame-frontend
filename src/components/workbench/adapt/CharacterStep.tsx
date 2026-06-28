@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Field, TextInput, TextArea, Button } from "../FormControls";
+import { Field, TextInput, TextArea, Select, Button } from "../FormControls";
 import { streamGenerate } from "../../../lib/api";
 
 interface Character {
@@ -13,7 +13,11 @@ interface Character {
   relationship: string;
 }
 
-const POSITIONS = ["主角", "第二主角", "反派", "重要配角", "线索人物", "路人"];
+const POSITIONS = [
+  "主角", "第二主角", "反派", "重要配角", "次要配角",
+  "线索人物", "导师/智者", "盟友/伙伴", "爱人/恋人", "喜剧担当",
+  "悲剧人物", "幕后黑手", "反英雄", "叙述者", "催化剂人物", "路人/龙套",
+];
 
 const INITIAL: Character[] = [];
 
@@ -142,28 +146,12 @@ export default function CharacterStep({ onComplete, data, updateData }: Props) {
         </div>
 
         <Field label="角色定位" required>
-          <div className="flex" style={{ gap: "6px", flexWrap: "wrap" }}>
-            {POSITIONS.map((pos) => (
-              <button
-                key={pos}
-                type="button"
-                onClick={() => update({ role: pos })}
-                className="cursor-pointer transition-all duration-150"
-                style={{
-                  height: "34px",
-                  padding: "0 14px",
-                  borderRadius: "var(--radius-sm)",
-                  background: selected.role === pos ? "var(--color-accent-whisper)" : "var(--color-paper)",
-                  border: selected.role === pos ? "1px solid var(--color-accent)" : "1px solid var(--color-mist)",
-                  color: selected.role === pos ? "var(--color-accent-deep)" : "var(--color-charcoal)",
-                  fontFamily: "var(--font-body)",
-                  fontSize: "12px",
-                }}
-              >
-                {pos}
-              </button>
-            ))}
-          </div>
+          <Select
+            value={selected.role}
+            onChange={(v) => update({ role: v })}
+            options={POSITIONS}
+            placeholder="选择人物在故事中的角色"
+          />
         </Field>
 
         <Field label="性格特征">

@@ -37,13 +37,6 @@ const MODULE_STEPS: Record<ModuleKey, string[]> = {
   evaluate: ["剧本上传", "维度选择", "AI 分析", "报告导出"],
 };
 
-const FRESH: Record<ModuleKey, { step: number; completed: boolean[]; workbenchData: Record<string, unknown> }> = {
-  original:   { step: 0, completed: [false, false, false, false], workbenchData: {} },
-  rewrite:    { step: 0, completed: [false, false, false, false], workbenchData: {} },
-  adapt:      { step: 0, completed: [false, false, false, false], workbenchData: {} },
-  evaluate:   { step: 0, completed: [false, false, false, false], workbenchData: {} },
-};
-
 export default function Workbench({ onExit, initialModule, projectId, initialSnapshot }: Props) {
   const snap = initialSnapshot ?? null;
   const [projectName] = useState(snap?.name ?? "");
@@ -66,27 +59,10 @@ export default function Workbench({ onExit, initialModule, projectId, initialSna
     return () => window.removeEventListener("keydown", down);
   }, []);
 
-  const handleSearchNavigate = useCallback((targetModule: ModuleKey, stepIndex: number, itemId: string) => {
-    if (targetModule !== module) {
-      const fresh = FRESH[targetModule];
-      setModule(targetModule);
-      setStep(stepIndex);
-      setCompleted(fresh.completed);
-      setWorkbenchData({ _jumpToItem: itemId });
-    } else {
-      setStep(stepIndex);
-      setWorkbenchData((prev) => ({ ...prev, _jumpToItem: itemId }));
-    }
-  }, [module]);
-
-  const handleModuleChange = useCallback((m: ModuleKey) => {
-    if (m === module) return;
-    const fresh = FRESH[m];
-    setModule(m);
-    setStep(fresh.step);
-    setCompleted(fresh.completed);
-    setWorkbenchData(fresh.workbenchData);
-  }, [module]);
+  const handleSearchNavigate = useCallback((_targetModule: ModuleKey, stepIndex: number, itemId: string) => {
+    setStep(stepIndex);
+    setWorkbenchData((prev) => ({ ...prev, _jumpToItem: itemId }));
+  }, []);
 
   const handleExit = useCallback(() => {
     onExit();
@@ -119,7 +95,6 @@ export default function Workbench({ onExit, initialModule, projectId, initialSna
     >
       <Sidebar
         active={module}
-        onSelect={handleModuleChange}
         onExit={handleExit}
         apiKey={apiKey}
         onSetApiKey={handleSetApiKey}

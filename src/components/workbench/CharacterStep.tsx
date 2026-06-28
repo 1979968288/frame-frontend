@@ -11,7 +11,11 @@ interface Character {
   background: string;
 }
 
-const POSITIONS = ["主角", "第二主角", "反派", "配角", "线索人物"];
+const POSITIONS = [
+  "主角", "第二主角", "反派", "重要配角", "次要配角",
+  "线索人物", "导师/智者", "盟友/伙伴", "爱人/恋人", "喜剧担当",
+  "悲剧人物", "幕后黑手", "反英雄", "叙述者", "催化剂人物", "路人/龙套",
+];
 
 const INITIAL: Character[] = [];
 
@@ -41,7 +45,7 @@ export default function CharacterStep({ onComplete, data, updateData }: Props) {
       id,
       name: "",
       position: "",
-      age: 28,
+      age: 24,
       personality: "",
       background: "",
     };
