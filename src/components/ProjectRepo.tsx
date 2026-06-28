@@ -33,13 +33,13 @@ interface Props {
 }
 
 export default function ProjectRepo({ module, onNewProject, onOpenProject, onBack }: Props) {
-  const [filter, setFilter] = useState<ModuleKey | "all">(module);
+  const [filter, setFilter] = useState<ModuleKey>(module);
   const [projects, setProjects] = useState<ProjectSnapshot[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ProjectSnapshot | null>(null);
 
   const refresh = useCallback(() => {
-    setProjects(listProjects(filter === "all" ? undefined : filter));
+    setProjects(listProjects(filter));
   }, [filter]);
 
   useEffect(() => {
@@ -69,11 +69,9 @@ export default function ProjectRepo({ module, onNewProject, onOpenProject, onBac
     refresh();
   };
 
-  const filtered = filter === "all"
-    ? projects
-    : projects.filter((p) => p.module === (filter as ModuleKey));
+  const filtered = projects.filter((p) => p.module === filter);
 
-  const filterTabs: (ModuleKey | "all")[] = ["all", "original", "rewrite", "adapt", "evaluate"];
+  const filterTabs: ModuleKey[] = ["original", "rewrite", "adapt", "evaluate"];
 
   return (
     <div
@@ -206,7 +204,7 @@ export default function ProjectRepo({ module, onNewProject, onOpenProject, onBac
                   letterSpacing: "0.02em",
                 }}
               >
-                {tab === "all" ? "全部" : MODULE_LABELS[tab as ModuleKey]}
+                {MODULE_LABELS[tab]}
               </button>
             );
           })}

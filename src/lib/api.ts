@@ -15,14 +15,9 @@ type Action =
   | "detect_scenes"
   | "detect_chapters";
 
-interface GenerateOptions {
-  module: Module;
-  action: Action;
-  context: Record<string, unknown>;
-  onChunk?: (text: string) => void;
-}
-
 const API_KEY_STORAGE = "frame_api_key";
+const PROVIDER_STORAGE = "frame_provider";
+const MODEL_STORAGE = "frame_model";
 
 export function getApiKey(): string {
   return localStorage.getItem(API_KEY_STORAGE) || "";
@@ -32,16 +27,38 @@ export function setApiKey(key: string): void {
   localStorage.setItem(API_KEY_STORAGE, key);
 }
 
+export function getProvider(): string {
+  return localStorage.getItem(PROVIDER_STORAGE) || "";
+}
+
+export function setProvider(provider: string): void {
+  localStorage.setItem(PROVIDER_STORAGE, provider);
+}
+
+export function getModel(): string {
+  return localStorage.getItem(MODEL_STORAGE) || "";
+}
+
+export function setModel(model: string): void {
+  if (model) {
+    localStorage.setItem(MODEL_STORAGE, model);
+  } else {
+    localStorage.removeItem(MODEL_STORAGE);
+  }
+}
+
 export async function* streamGenerate(
   module: Module,
   action: Action,
   context: Record<string, unknown>,
 ): AsyncGenerator<string, void, undefined> {
   const apiKey = getApiKey();
+  const provider = getProvider();
+  const model = getModel();
   const res = await fetch("/api/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ module, action, context, apiKey }),
+    body: JSON.stringify({ module, action, context, apiKey, provider, model }),
   });
 
   if (!res.ok) {
@@ -75,13 +92,4 @@ export async function* streamGenerate(
       }
     }
   }
-}
-
-export async function generate(options: GenerateOptions): Promise<string> {
-  let result = "";
-  for await (const chunk of streamGenerate(options.module, options.action, options.context)) {
-    result += chunk;
-    options.onChunk?.(chunk);
-  }
-  return result;
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ModuleKey } from "./Workbench";
+import { getProvider, setProvider, getModel, setModel } from "../../lib/api";
 
 interface Props {
   active: ModuleKey;
@@ -57,11 +58,35 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
+const PROVIDER_OPTIONS: { id: string; label: string; defaultModel: string }[] = [
+  { id: "deepseek", label: "DeepSeek", defaultModel: "deepseek-chat" },
+  { id: "qwen", label: "通义千问", defaultModel: "qwen-plus" },
+  { id: "zhipu", label: "智谱 GLM", defaultModel: "glm-4" },
+  { id: "moonshot", label: "Moonshot", defaultModel: "moonshot-v1-8k" },
+  { id: "siliconflow", label: "硅基流动", defaultModel: "deepseek-ai/DeepSeek-V3" },
+  { id: "baichuan", label: "百川", defaultModel: "Baichuan4" },
+  { id: "minimax", label: "MiniMax", defaultModel: "abab6.5s-chat" },
+  { id: "yi", label: "零一万物", defaultModel: "yi-large" },
+  { id: "openai", label: "OpenAI", defaultModel: "gpt-4o" },
+  { id: "anthropic", label: "Anthropic Claude", defaultModel: "claude-sonnet-4-20250514" },
+  { id: "groq", label: "Groq", defaultModel: "llama-3.1-70b-versatile" },
+  { id: "together", label: "Together AI", defaultModel: "meta-llama/Llama-3-70b-chat-hf" },
+  { id: "mistral", label: "Mistral AI", defaultModel: "mistral-large-latest" },
+  { id: "xai", label: "xAI Grok", defaultModel: "grok-2" },
+  { id: "custom", label: "自定义", defaultModel: "" },
+];
+
 
 export default function Sidebar({ active, onSelect, onExit, apiKey, onSetApiKey }: Props) {
   const [hovered, setHovered] = useState(false);
-  const [editingKey, setEditingKey] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState(() => getProvider());
+  const [selectedModel, setSelectedModel] = useState(() => getModel());
+  const [editingModel, setEditingModel] = useState(false);
+  const [modelSettingsOpen, setModelSettingsOpen] = useState(false);
   const expanded = hovered;
+
+  const providerDefaultModel = PROVIDER_OPTIONS.find((p) => p.id === selectedProvider)?.defaultModel || "";
+  const activeModel = selectedModel || providerDefaultModel;
 
   return (
     <div
@@ -193,9 +218,14 @@ export default function Sidebar({ active, onSelect, onExit, apiKey, onSetApiKey 
         >
           {expanded ? (
             <>
-              {/* API Key */}
+              {/* 模型设置 */}
               <div style={{ marginBottom: "16px" }}>
-                <div className="flex items-center justify-between" style={{ marginBottom: "8px" }}>
+                <button
+                  type="button"
+                  onClick={() => setModelSettingsOpen(!modelSettingsOpen)}
+                  className="flex items-center justify-between cursor-pointer bg-transparent border-none w-full"
+                  style={{ padding: 0, marginBottom: modelSettingsOpen ? "12px" : "0" }}
+                >
                   <span
                     style={{
                       fontFamily: "var(--font-body)",
@@ -204,32 +234,115 @@ export default function Sidebar({ active, onSelect, onExit, apiKey, onSetApiKey 
                       letterSpacing: "0.04em",
                     }}
                   >
-                    API Key
+                    模型设置
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setEditingKey(!editingKey)}
-                    className="cursor-pointer bg-transparent border-none"
+                  <span
                     style={{
-                      fontFamily: "var(--font-body)",
+                      fontFamily: "var(--font-mono)",
                       fontSize: "10px",
-                      color: "var(--color-accent-deep)",
-                      letterSpacing: "0.04em",
-                      padding: 0,
+                      color: apiKey ? "var(--color-accent-deep)" : "var(--color-mid)",
+                      transition: "transform 200ms var(--ease-out)",
                     }}
                   >
-                    {editingKey ? "收起" : apiKey ? "已设置" : "设置"}
-                  </button>
-                </div>
-                {editingKey && (
-                  <div style={{ display: "flex", gap: "4px" }}>
+                    {modelSettingsOpen ? "收起 ▲" : `${PROVIDER_OPTIONS.find((p) => p.id === selectedProvider)?.label || "未选择"} ▸`}
+                  </span>
+                </button>
+
+                {modelSettingsOpen && (
+                  <>
+                    {/* 供应商 */}
+                    <select
+                      value={selectedProvider}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setSelectedProvider(v);
+                        setProvider(v);
+                      }}
+                      style={{
+                        width: "100%",
+                        height: "30px",
+                        padding: "0 8px",
+                        border: "1px solid var(--color-mist)",
+                        borderRadius: "var(--radius-sm)",
+                        fontFamily: "var(--font-body)",
+                        fontSize: "12px",
+                        color: "var(--color-ink)",
+                        background: "var(--color-warm-cream)",
+                        outline: "none",
+                        cursor: "pointer",
+                        marginBottom: "8px",
+                      }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "var(--color-accent)"; }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = "var(--color-mist)"; }}
+                    >
+                      {PROVIDER_OPTIONS.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.label}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* 模型 */}
+                    <div className="flex items-center justify-between" style={{ marginBottom: editingModel ? "4px" : "8px" }}>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "10px",
+                          color: selectedModel ? "var(--color-accent-deep)" : "var(--color-mid)",
+                        }}
+                      >
+                        {activeModel || "待选择供应商"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setEditingModel(!editingModel)}
+                        className="cursor-pointer bg-transparent border-none"
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          fontSize: "10px",
+                          color: "var(--color-accent-deep)",
+                          letterSpacing: "0.04em",
+                          padding: 0,
+                        }}
+                      >
+                        {editingModel ? "默认" : "自定义"}
+                      </button>
+                    </div>
+                    {editingModel && (
+                      <input
+                        type="text"
+                        value={selectedModel}
+                        onChange={(e) => {
+                          setSelectedModel(e.target.value);
+                          setModel(e.target.value);
+                        }}
+                        placeholder={providerDefaultModel || "输入模型名称"}
+                        style={{
+                          width: "100%",
+                          height: "28px",
+                          marginBottom: "8px",
+                          padding: "0 8px",
+                          border: "1px solid var(--color-mist)",
+                          borderRadius: "var(--radius-sm)",
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "11px",
+                          color: "var(--color-ink)",
+                          background: "var(--color-warm-cream)",
+                          outline: "none",
+                        }}
+                        onFocus={(e) => { e.currentTarget.style.borderColor = "var(--color-accent)"; }}
+                        onBlur={(e) => { e.currentTarget.style.borderColor = "var(--color-mist)"; }}
+                      />
+                    )}
+
+                    {/* API Key */}
                     <input
                       type="password"
                       value={apiKey || ""}
                       onChange={(e) => onSetApiKey?.(e.target.value)}
-                      placeholder="sk-ant-..."
+                      placeholder="输入 API Key"
                       style={{
-                        flex: 1,
+                        width: "100%",
                         height: "28px",
                         padding: "0 8px",
                         border: "1px solid var(--color-mist)",
@@ -239,27 +352,23 @@ export default function Sidebar({ active, onSelect, onExit, apiKey, onSetApiKey 
                         color: "var(--color-ink)",
                         background: "var(--color-warm-cream)",
                         outline: "none",
+                        marginBottom: "8px",
                       }}
                       onFocus={(e) => { e.currentTarget.style.borderColor = "var(--color-accent)"; }}
                       onBlur={(e) => { e.currentTarget.style.borderColor = "var(--color-mist)"; }}
                     />
-                  </div>
-                )}
-                {!editingKey && apiKey && (
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "10px",
-                      color: "var(--color-accent-deep)",
-                    }}
-                  >
-                    {apiKey.slice(0, 10)}…
-                  </span>
-                )}
-                {!editingKey && !apiKey && (
-                  <span style={{ fontFamily: "var(--font-body)", fontSize: "10px", color: "var(--color-mid)" }}>
-                    未设置 — 点击"设置"输入
-                  </span>
+                    {apiKey && (
+                      <span
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          fontSize: "9px",
+                          color: "var(--color-accent-deep)",
+                        }}
+                      >
+                        API Key 已设置
+                      </span>
+                    )}
+                  </>
                 )}
               </div>
 

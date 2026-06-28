@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 
 app.post("/api/generate", async (req, res) => {
-  const { module, action, context, apiKey } = req.body;
+  const { module, action, context, apiKey, provider, model } = req.body;
 
   if (!module || !action || !context || !apiKey) {
     res.status(400).json({
@@ -26,7 +26,7 @@ app.post("/api/generate", async (req, res) => {
   try {
     const { system, user } = buildPrompts(module, action, context);
 
-    for await (const chunk of streamText({ system, user, apiKey })) {
+    for await (const chunk of streamText({ system, user, apiKey, provider, model })) {
       res.write(`data: ${JSON.stringify({ text: chunk })}\n\n`);
     }
     res.write("data: [DONE]\n\n");

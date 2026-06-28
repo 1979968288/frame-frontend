@@ -10,9 +10,9 @@ export default function StepNav({ steps, current, completed, onSelect }: Props) 
     <div
       className="flex items-center"
       style={{
-        padding: "0 0 24px",
+        padding: "0 0 12px",
         borderBottom: "1px solid var(--color-mist)",
-        marginBottom: "32px",
+        marginBottom: "20px",
         gap: "0",
       }}
     >
@@ -32,7 +32,7 @@ export default function StepNav({ steps, current, completed, onSelect }: Props) 
               onClick={() => onSelect(i)}
               className="flex items-center cursor-pointer bg-transparent border-none"
               style={{
-                gap: "10px",
+                gap: "8px",
                 transition: "all 200ms var(--ease-out)",
               }}
             >
@@ -82,12 +82,12 @@ export default function StepNav({ steps, current, completed, onSelect }: Props) 
             {/* Connecting line */}
             {!isLast && (
               <div
-                className="mx-[20px] shrink-0"
+                className="mx-[8px] shrink-0"
                 style={{
                   flex: "1 1 auto",
                   height: "1px",
                   background: isDone ? "var(--color-accent)" : "var(--color-mist)",
-                  maxWidth: "60px",
+                  maxWidth: "26px",
                   transition: "background 200ms var(--ease-out)",
                 }}
               />
