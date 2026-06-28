@@ -19,12 +19,15 @@ import EvaluateUploadStep from "./evaluate/UploadStep";
 import EvaluateDimensionStep from "./evaluate/DimensionStep";
 import EvaluateAnalysisStep from "./evaluate/AnalysisStep";
 import EvaluateReportStep from "./evaluate/ReportStep";
+import type { ProjectSnapshot } from "../../lib/projectStore";
 
 export type ModuleKey = "original" | "rewrite" | "adapt" | "evaluate";
 
 interface Props {
   onExit: () => void;
   initialModule: ModuleKey;
+  projectId?: string;
+  initialSnapshot?: ProjectSnapshot | null;
 }
 
 const MODULE_STEPS: Record<ModuleKey, string[]> = {
@@ -41,11 +44,13 @@ const FRESH: Record<ModuleKey, { step: number; completed: boolean[]; workbenchDa
   evaluate:   { step: 0, completed: [false, false, false, false], workbenchData: {} },
 };
 
-export default function Workbench({ onExit, initialModule }: Props) {
-  const [module, setModule] = useState<ModuleKey>(initialModule);
-  const [step, setStep] = useState(0);
-  const [completed, setCompleted] = useState<boolean[]>([false, false, false, false]);
-  const [workbenchData, setWorkbenchData] = useState<Record<string, unknown>>({});
+export default function Workbench({ onExit, initialModule, projectId, initialSnapshot }: Props) {
+  const snap = initialSnapshot ?? null;
+  const [projectName] = useState(snap?.name ?? "");
+  const [module, setModule] = useState<ModuleKey>(snap?.module ?? initialModule);
+  const [step, setStep] = useState(snap?.step ?? 0);
+  const [completed, setCompleted] = useState<boolean[]>(snap?.completed ?? [false, false, false, false]);
+  const [workbenchData, setWorkbenchData] = useState<Record<string, unknown>>(snap?.workbenchData ?? {});
   const [apiKey, setApiKeyState] = useState(() => getApiKey());
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -135,16 +140,38 @@ export default function Workbench({ onExit, initialModule }: Props) {
           }}
         >
           <div className="flex items-center" style={{ gap: "10px" }}>
-            <span
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: "13px",
-                color: "var(--color-mid)",
-              }}
-            >
-              工作台
-            </span>
-            <span style={{ color: "var(--color-mist)" }}>/</span>
+            {projectName ? (
+              <>
+                <span
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    color: "var(--color-ink)",
+                    maxWidth: "200px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {projectName}
+                </span>
+                <span style={{ color: "var(--color-mist)" }}>/</span>
+              </>
+            ) : (
+              <>
+                <span
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "13px",
+                    color: "var(--color-mid)",
+                  }}
+                >
+                  工作台
+                </span>
+                <span style={{ color: "var(--color-mist)" }}>/</span>
+              </>
+            )}
             <span
               style={{
                 fontFamily: "var(--font-body)",
@@ -158,6 +185,33 @@ export default function Workbench({ onExit, initialModule }: Props) {
           </div>
 
           <div className="ml-auto flex items-center" style={{ gap: "12px" }}>
+            <button
+              type="button"
+              onClick={onExit}
+              className="cursor-pointer border"
+              style={{
+                height: "30px",
+                padding: "0 14px",
+                borderRadius: "var(--radius-sm)",
+                background: "transparent",
+                borderColor: "var(--color-mist)",
+                color: "var(--color-charcoal)",
+                fontFamily: "var(--font-body)",
+                fontSize: "11px",
+                letterSpacing: "0.04em",
+                transition: "all 150ms",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-accent)";
+                e.currentTarget.style.color = "var(--color-accent-deep)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-mist)";
+                e.currentTarget.style.color = "var(--color-charcoal)";
+              }}
+            >
+              项目选择
+            </button>
             <button
               type="button"
               aria-label="搜索"

@@ -2,20 +2,72 @@ import { useState } from "react";
 import Navbar from "./components/Navbar";
 import ModuleCards from "./components/ModuleCards";
 import ScriptGallery from "./components/ScriptGallery";
+import ProjectRepo from "./components/ProjectRepo";
 import Workbench from "./components/workbench/Workbench";
 import type { ModuleKey } from "./components/workbench/Workbench";
+import type { ProjectSnapshot } from "./lib/projectStore";
+import { saveProject } from "./lib/projectStore";
 
-type View = "home" | "workbench";
+type View = "home" | "project-repo" | "workbench";
 
 export default function App() {
   const [view, setView] = useState<View>("home");
-  const [activeModule, setActiveModule] = useState<ModuleKey>("original");
+  const [pendingModule, setPendingModule] = useState<ModuleKey>("original");
+  const [editingProject, setEditingProject] = useState<ProjectSnapshot | null>(null);
+
+  // From home → project-repo
+  const handleModuleSelect = (module: ModuleKey) => {
+    setPendingModule(module);
+    setEditingProject(null);
+    setView("project-repo");
+  };
+
+  // From project-repo → workbench (new project)
+  const handleNewProject = () => {
+    setEditingProject(null);
+    setView("workbench");
+  };
+
+  // From project-repo → workbench (open existing)
+  const handleOpenProject = (project: ProjectSnapshot) => {
+    setEditingProject(project);
+    setView("workbench");
+  };
+
+  // From workbench → project-repo
+  const handleBackToRepo = () => {
+    setView("project-repo");
+  };
+
+  // From workbench → project-repo (with save)
+  const handleSaveAndBack = (snapshot: ProjectSnapshot) => {
+    saveProject(snapshot);
+    setView("project-repo");
+  };
+
+  // From project-repo → home
+  const handleBackToHome = () => {
+    setView("home");
+  };
+
+  if (view === "project-repo") {
+    return (
+      <ProjectRepo
+        module={pendingModule}
+        onNewProject={handleNewProject}
+        onOpenProject={handleOpenProject}
+        onBack={handleBackToHome}
+      />
+    );
+  }
 
   if (view === "workbench") {
     return (
       <Workbench
-        onExit={() => setView("home")}
-        initialModule={activeModule}
+        onExit={handleBackToRepo}
+        initialModule={pendingModule}
+        projectId={editingProject?.id}
+        initialSnapshot={editingProject}
       />
     );
   }
@@ -66,12 +118,7 @@ export default function App() {
         />
 
         <div className="w-full mt-[64px]" style={{ maxWidth: "var(--width-max)" }}>
-          <ModuleCards
-            onSelect={(module) => {
-              setActiveModule(module);
-              setView("workbench");
-            }}
-          />
+          <ModuleCards onSelect={handleModuleSelect} />
         </div>
       </section>
 
