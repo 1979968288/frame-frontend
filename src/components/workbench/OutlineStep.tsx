@@ -7,6 +7,7 @@ interface Episode {
   number: number;
   title: string;
   summary: string;
+  duration: number;
 }
 
 interface Act {
@@ -61,6 +62,7 @@ export default function OutlineStep({ onComplete, data, updateData }: Props) {
         number: nextNumber,
         title: "",
         summary: "",
+        duration: 15,
       },
     ]);
   };
@@ -81,6 +83,7 @@ export default function OutlineStep({ onComplete, data, updateData }: Props) {
         existingEpisodes: episodes,
         synopsis,
         characters: characters.map((c) => ({ name: c.name, position: c.position, personality: c.personality })),
+        episodeDuration: episodes[0]?.duration ?? 15,
       })) {
         fullText += chunk;
       }
@@ -300,6 +303,46 @@ export default function OutlineStep({ onComplete, data, updateData }: Props) {
                       </svg>
                     </button>
                   </div>
+                  <div className="flex items-center" style={{ gap: "8px", marginBottom: "8px" }}>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        fontSize: "11px",
+                        color: "var(--color-mid)",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      单集时长
+                    </span>
+                    <input
+                      type="number"
+                      value={ep.duration}
+                      onChange={(e) => updateEpisode(ep.id, { duration: Math.max(1, Number(e.target.value)) })}
+                      min={1}
+                      max={120}
+                      className="bg-transparent outline-none"
+                      style={{
+                        width: "48px",
+                        height: "24px",
+                        borderRadius: "var(--radius-sm)",
+                        border: "1px solid var(--color-mist)",
+                        fontFamily: "var(--font-body)",
+                        fontSize: "11px",
+                        color: "var(--color-ink)",
+                        textAlign: "center",
+                        padding: "0 4px",
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        fontSize: "11px",
+                        color: "var(--color-mist)",
+                      }}
+                    >
+                      分钟
+                    </span>
+                  </div>
                   <textarea
                     value={ep.summary}
                     onChange={(e) => updateEpisode(ep.id, { summary: e.target.value })}
@@ -451,6 +494,7 @@ function parseEpisodes(text: string): Episode[] {
           number: episodes.length + 1,
           title: current.title,
           summary: current.summary || "",
+          duration: 15,
         });
       }
       current = { title: match[2].trim(), summary: "" };
@@ -464,6 +508,7 @@ function parseEpisodes(text: string): Episode[] {
       number: episodes.length + 1,
       title: current.title,
       summary: (current.summary || "").trim(),
+      duration: 15,
     });
   }
   return episodes;

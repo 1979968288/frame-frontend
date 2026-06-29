@@ -46,6 +46,7 @@ export default function GenerateStep({ onComplete, data, updateData }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [batchGenerating, setBatchGenerating] = useState(false);
+  const [episodeDuration, setEpisodeDuration] = useState((data?.episodeDuration as number) || 15);
 
   // Handle search navigation jump
   useEffect(() => {
@@ -83,6 +84,7 @@ export default function GenerateStep({ onComplete, data, updateData }: Props) {
         plotPoints: bc?.plotPoints || "",
         sourceChapters: bc?.sourceChapters || "",
         characters: characters.map((c) => ({ name: c.name, role: c.role, traits: c.traits })),
+        episodeDuration,
       })) {
         fullText += chunk;
         updateContent(id, fullText);
@@ -128,6 +130,7 @@ export default function GenerateStep({ onComplete, data, updateData }: Props) {
           plotPoints: bc?.plotPoints || "",
           sourceChapters: bc?.sourceChapters || "",
           characters: characters.map((c) => ({ name: c.name, role: c.role, traits: c.traits })),
+          episodeDuration,
         })) {
           fullText += chunk;
           updateContent(ch.id, fullText);
@@ -277,6 +280,44 @@ export default function GenerateStep({ onComplete, data, updateData }: Props) {
             <Button variant="secondary" disabled={generatingId === expanded.id} onClick={() => handlePolish(expanded.id)}>
               {generatingId === expanded.id ? "润色中…" : "AI 润色"}
             </Button>
+            <div className="flex items-center" style={{ gap: "6px", height: "36px", padding: "0 12px", border: "1px solid var(--color-mist)", borderRadius: 0 }}>
+              <span
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "11px",
+                  color: "var(--color-mid)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                单集时长
+              </span>
+              <input
+                type="number"
+                value={episodeDuration}
+                onChange={(e) => setEpisodeDuration(Math.max(1, Number(e.target.value)))}
+                min={1}
+                max={120}
+                className="bg-transparent outline-none"
+                style={{
+                  width: "42px",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "12px",
+                  color: "var(--color-ink)",
+                  textAlign: "center",
+                  border: "none",
+                  padding: 0,
+                }}
+              />
+              <span
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "11px",
+                  color: "var(--color-mist)",
+                }}
+              >
+                分钟
+              </span>
+            </div>
             <span style={{ flex: 1 }} />
             <button
               type="button"
@@ -419,8 +460,48 @@ export default function GenerateStep({ onComplete, data, updateData }: Props) {
           gap: "12px",
         }}
       >
-        <Button onClick={() => { updateData({ generatedChapters: chapters }); onComplete(); }}>完成创作</Button>
+        <Button onClick={() => { updateData({ generatedChapters: chapters, episodeDuration }); onComplete(); }}>完成创作</Button>
         <Button variant="secondary" onClick={addChapter}>新增章</Button>
+        <div className="flex items-center" style={{ gap: "6px" }}>
+          <span
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "11px",
+              color: "var(--color-mid)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            单集时长
+          </span>
+          <input
+            type="number"
+            value={episodeDuration}
+            onChange={(e) => setEpisodeDuration(Math.max(1, Number(e.target.value)))}
+            min={1}
+            max={120}
+            className="bg-transparent outline-none"
+            style={{
+              width: "48px",
+              height: "30px",
+              borderRadius: "var(--radius-sm)",
+              border: "1px solid var(--color-mist)",
+              fontFamily: "var(--font-body)",
+              fontSize: "12px",
+              color: "var(--color-ink)",
+              textAlign: "center",
+              padding: "0 4px",
+            }}
+          />
+          <span
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "11px",
+              color: "var(--color-mist)",
+            }}
+          >
+            分钟
+          </span>
+        </div>
         <Button variant="secondary" disabled={batchGenerating} onClick={handleBatchGenerate}>
           {batchGenerating ? "批量生成中…" : "AI 批量生成"}
         </Button>

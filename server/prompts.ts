@@ -63,6 +63,7 @@ function buildOriginalPrompts(
       const roughOutline = (ctx.roughOutline as string) || "";
       const synopsis = (ctx.synopsis as string) || "";
       const characters = (ctx.characters as { name: string; position: string; personality: string }[]) || [];
+      const episodeDuration = (ctx.episodeDuration as number) || 15;
       const existingEpisodes = ctx.existingEpisodes as
         | { title: string; number: number }[]
         | undefined;
@@ -85,6 +86,7 @@ function buildOriginalPrompts(
 第N集 · 标题
 剧情梗概：2-3句话描述本集核心情节。
 
+每集时长为${episodeDuration}分钟，请确保每集的情节量适配该时长。
 集与集之间用空行分隔。只返回大纲内容，不要任何解释或前言。
 ${existingText ? "在已有集纲基础上继续编排，不要重复已有内容。" : "生成适合一季12集的完整分集大纲。"}`,
         user: [
@@ -381,6 +383,7 @@ wordCount为该章节的估计中文字数。`,
       const chapterTitle = (ctx.chapterTitle as string) || "";
       const plotPoints = (ctx.plotPoints as string) || "";
       const sourceChapters = (ctx.sourceChapters as string) || "";
+      const episodeDuration = (ctx.episodeDuration as number) || 15;
       const characters = (ctx.characters as {
         name: string;
         role: string;
@@ -397,6 +400,8 @@ wordCount为该章节的估计中文字数。`,
             .join("\n")
         : "";
 
+      const targetWords = episodeDuration * 150;
+
       return {
         system: `你是一个专业的网文改编编剧。将网文章节改编为影视剧本格式。
 
@@ -405,7 +410,7 @@ wordCount为该章节的估计中文字数。`,
 2. 将网文叙述转为标准剧本格式：场次标题 + 场景描述 + 人物对白
 3. 对白格式：人物名：对白内容
 4. 合理增删——合并冗余叙述，补全视角转换
-5. 每改编章约2000-4000字
+5. 单集时长为${episodeDuration}分钟，目标约${targetWords}字
 ${charProfiles}
 
 只返回改编后的完整剧本正文，不要解释或说明。`,
