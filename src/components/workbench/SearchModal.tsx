@@ -17,13 +17,6 @@ interface Props {
   onNavigate: (module: ModuleKey, stepIndex: number, itemId: string) => void;
 }
 
-const STEP_INDEX: Record<string, number> = {
-  synopsis: 0, characters: 0, outlineEpisodes: 2, scriptEpisodes: 3,
-  importedScript: 0, rewriteDimensions: 1, optimizedScenes: 2,
-  importedNovel: 0, novelCharacters: 1, adaptedChapters: 2, generatedChapters: 3,
-  evalScript: 0, evalDimensions: 1, evalScores: 2,
-};
-
 const MODULE_STEP: Record<string, { module: ModuleKey; stepIndex: number; label: string }> = {
   synopsis: { module: "original", stepIndex: 0, label: "故事梗概" },
   characters: { module: "original", stepIndex: 1, label: "人物小传" },

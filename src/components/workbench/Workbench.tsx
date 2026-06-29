@@ -38,10 +38,10 @@ const MODULE_STEPS: Record<ModuleKey, string[]> = {
   evaluate: ["剧本上传", "维度选择", "AI 分析", "报告导出"],
 };
 
-export default function Workbench({ onExit, onNavigateTo, initialModule, projectId, initialSnapshot }: Props) {
+export default function Workbench({ onExit, onNavigateTo, initialModule, projectId: _projectId, initialSnapshot }: Props) {
   const snap = initialSnapshot ?? null;
   const [projectName] = useState(snap?.name ?? "");
-  const [module, setModule] = useState<ModuleKey>(snap?.module ?? initialModule);
+  const [module] = useState<ModuleKey>(snap?.module ?? initialModule);
   const [step, setStep] = useState(snap?.step ?? 0);
   const [completed, setCompleted] = useState<boolean[]>(snap?.completed ?? [false, false, false, false]);
   const [workbenchData, setWorkbenchData] = useState<Record<string, unknown>>(snap?.workbenchData ?? {});

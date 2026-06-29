@@ -6,7 +6,7 @@ import ProjectRepo from "./components/ProjectRepo";
 import Workbench from "./components/workbench/Workbench";
 import type { ModuleKey } from "./components/workbench/Workbench";
 import type { ProjectSnapshot } from "./lib/projectStore";
-import { saveProject } from "./lib/projectStore";
+
 
 type View = "home" | "project-repo" | "workbench";
 
@@ -42,12 +42,6 @@ export default function App() {
   // From workbench → project-repo (different module via sidebar)
   const handleNavigateToRepo = (module: ModuleKey) => {
     setPendingModule(module);
-    setView("project-repo");
-  };
-
-  // From workbench → project-repo (with save)
-  const handleSaveAndBack = (snapshot: ProjectSnapshot) => {
-    saveProject(snapshot);
     setView("project-repo");
   };
 

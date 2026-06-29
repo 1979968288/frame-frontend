@@ -32,7 +32,7 @@ interface Props {
   onBack: () => void;
 }
 
-export default function ProjectRepo({ module, onNewProject, onOpenProject, onBack }: Props) {
+export default function ProjectRepo({ module, onOpenProject, onBack }: Props) {
   const [filter, setFilter] = useState<ModuleKey>(module);
   const [projects, setProjects] = useState<ProjectSnapshot[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
